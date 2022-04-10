@@ -1,0 +1,136 @@
+<template>
+  <div class="page-wrapper">
+    <div class="container has-text-centered">
+      <div class="column is-4 is-offset-4">
+        <h3 class="title has-text-grey">Login</h3>
+        <p class="subtitle has-text-grey">Please login to proceed.</p>
+        <div class="box">
+          <form>
+            <div class="field">
+              <div class="control">
+                <input
+                  class="input is-large"
+                  type="email"
+                  placeholder="Your Email"
+                  autofocus=""
+                  autocomplete="email"
+                  v-model="form.email"
+                />
+                <form-error :errors="v$.form.email.$errors" />
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <input
+                  class="input is-large"
+                  type="password"
+                  placeholder="Your Password"
+                  autocomplete="current-password"
+                  v-model="form.password"
+                />
+                <form-error :errors="v$.form.password.$errors" />
+              </div>
+            </div>
+            <button
+              @click="login"
+              :disabled="isProcessing"
+              type="button"
+              class="button is-block is-info is-large is-fullwidth"
+            >
+              Sign In
+            </button>
+          </form>
+        </div>
+        <p class="has-text-grey">
+          <a href="#">Sign In With Google</a>&nbsp;
+          <a href="#">Sign Up</a> &nbsp;·&nbsp;
+          <a href="#">Need Help?</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+<!-----------------------scripts----------------------->
+<script>
+import useAuth from "@/composition/useAuth";
+import { required, email } from "@vuelidate/validators";
+import FormError from "@/components/FormError.vue";
+import useVuelidate from "@vuelidate/core";
+export default {
+  components: { FormError },
+  name: "loginPage",
+
+  data() {
+    return {
+      form: {
+        email: "test3@gmail.com",
+        password: "testtest",
+      },
+    };
+  },
+  validations() {
+    return {
+      form: {
+        email: { required, email },
+        password: { required },
+      },
+    };
+  },
+
+  setup() {
+    return { ...useAuth(), v$: useVuelidate() };
+  },
+
+  watch: {
+    isAuthenticated(isAuth) {
+      if (isAuth) {
+        this.$router.push("/");
+      }
+    },
+  },
+
+  methods: {
+    async login() {
+      const isValid = await this.v$.$validate();
+      if (isValid) {
+        this.$store.dispatch("user/login", this.form);
+      }
+    },
+  },
+};
+</script>
+<!-----------------------styles----------------------->
+<style scoped>
+.hero.is-success {
+  background: #f2f6fa;
+}
+.hero .nav,
+.hero.is-success .nav {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.box {
+  margin-top: 1rem;
+}
+.avatar {
+  margin-top: -70px;
+  padding-bottom: 20px;
+}
+.avatar img {
+  padding: 5px;
+  background: #fff;
+  border-radius: 50%;
+  -webkit-box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
+    0 0 0 1px rgba(10, 10, 10, 0.1);
+  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+}
+input {
+  font-weight: 300;
+}
+p {
+  font-weight: 700;
+}
+p.subtitle {
+  padding-top: 1rem;
+}
+</style>
